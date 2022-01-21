@@ -1,0 +1,17 @@
+FROM rockylinux:8
+
+ARG GIT_URL="https://github.com/Seagate/cortx-rgw"
+ARG GIT_REF="mgw-stable"
+
+RUN dnf install -y git
+RUN git clone --recurse $GIT_URL --branch $GIT_REF
+RUN dnf install -y dnf-plugins-core epel-release && \
+    dnf config-manager --set-enabled powertools && dnf -y update
+RUN cd cortx-rgw && sh ./install-deps.sh
+
+# RUN cd /cortx-rgw/ && cmake3 -GNinja -DWITH_PYTHON3=3.6 -DWITH_RADOSGW_MOTR=YES -B build
+# RUN cd /cortx-rgw/build/ && ninja vstart
+
+COPY entrypoint.sh /
+
+ENTRYPOINT ["/entrypoint.sh"]
